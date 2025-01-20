@@ -1,11 +1,11 @@
-package kypo_test
+package crczp_test
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/cyberrangecz/go-client/pkg/crczp"
 	"github.com/stretchr/testify/assert"
-	"github.com/vydrazde/kypo-go-client/pkg/kypo"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,8 +13,8 @@ import (
 
 var trainingDefinitionJsonString = `{"title":"title","description":"description","prerequisites":[],"outcomes":[],"state":"UNRELEASED","show_stepper_bar":true,"levels":[],"estimated_duration":0,"variant_sandboxes":false}`
 
-func minimalClient(ts *httptest.Server) kypo.Client {
-	c := kypo.Client{
+func minimalClient(ts *httptest.Server) crczp.Client {
+	c := crczp.Client{
 		Endpoint:   ts.URL,
 		HTTPClient: http.DefaultClient,
 		Token:      "token",
@@ -26,7 +26,7 @@ func assertTrainingDefinitionGet(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
 	assert.Equal(t, "application/octet-stream", request.Header.Get("accept"))
-	assert.Equal(t, "/kypo-rest-training/api/v1/exports/training-definitions/1", request.URL.Path)
+	assert.Equal(t, "/rest-training/api/v1/exports/training-definitions/1", request.URL.Path)
 	assert.Equal(t, http.MethodGet, request.Method)
 }
 
@@ -62,7 +62,7 @@ func TestGetTrainingDefinitionSuccessful(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := kypo.TrainingDefinition{
+	expected := crczp.TrainingDefinition{
 		Id:      1,
 		Content: trainingDefinitionJsonString,
 	}
@@ -83,10 +83,10 @@ func TestGetTrainingDefinitionNotFound(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "training definition",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	td, actual := c.GetTrainingDefinition(context.Background(), 1)
@@ -105,7 +105,7 @@ func TestGetTrainingDefinitionServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "training definition",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -120,7 +120,7 @@ func TestGetTrainingDefinitionServerError(t *testing.T) {
 func assertTrainingDefinitionCreate(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-rest-training/api/v1/imports/training-definitions", request.URL.Path)
+	assert.Equal(t, "/rest-training/api/v1/imports/training-definitions", request.URL.Path)
 	assert.Equal(t, http.MethodPost, request.Method)
 }
 
@@ -164,7 +164,7 @@ func TestCreateTrainingDefinitionSuccessful(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := kypo.TrainingDefinition{
+	expected := crczp.TrainingDefinition{
 		Id:      1,
 		Content: trainingDefinitionJsonString,
 	}
@@ -185,7 +185,7 @@ func TestCreateTrainingDefinitionServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "training definition",
 		Identifier:   "",
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -200,7 +200,7 @@ func TestCreateTrainingDefinitionServerError(t *testing.T) {
 func assertTrainingDefinitionDelete(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-rest-training/api/v1/training-definitions/1", request.URL.Path)
+	assert.Equal(t, "/rest-training/api/v1/training-definitions/1", request.URL.Path)
 	assert.Equal(t, http.MethodDelete, request.Method)
 }
 
@@ -243,7 +243,7 @@ func TestDeleteTrainingDefinitionNotFound(t *testing.T) {
 			Status:    "NOT_FOUND",
 			Message:   "Entity TrainingDefinition (id: 1) not found.",
 			Errors:    []*string{nil},
-			Path:      "/kypo-rest-training/api/v1/training-definitions/1",
+			Path:      "/rest-training/api/v1/training-definitions/1",
 			EntityErrorDetail: EntityErrorDetail{
 				Entity:          "TrainingDefinition",
 				Identifier:      "id",
@@ -257,10 +257,10 @@ func TestDeleteTrainingDefinitionNotFound(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "training definition",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	actual := c.DeleteTrainingDefinition(context.Background(), 1)
@@ -277,7 +277,7 @@ func TestDeleteTrainingDefinitionServerError(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "training definition",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),

@@ -1,27 +1,28 @@
-package kypo
+package crczp
 
 import (
+	"context"
 	"net/http"
 	"time"
 )
 
-// Client struct stores information for authentication to the KYPO API.
+// Client struct stores information for authentication to the CRCZP API.
 // All functions are methods of this struct
 type Client struct {
-	// Endpoint of the KYPO instance to connect to. For example `https://your.kypo.ex`.
+	// Endpoint of the CRCZP instance to connect to. For example `https://your.crczp.ex`.
 	Endpoint string
 
-	// ClientID used by the KYPO instance OIDC provider.
+	// ClientID used by the CRCZP instance OIDC provider.
 	ClientID string
 
 	// HTTPClient which is used to do requests.
 	HTTPClient *http.Client
 
-	// Bearer Token which is used for authentication to the KYPO instance. Is set by NewClient function.
+	// Bearer Token which is used for authentication to the CRCZP instance. Is set by NewClient function.
 	Token string
 
 	// Time when Token expires, used to refresh it automatically when required. Is set by NewClient function.
-	// Is used only with KYPO instances using Keycloak OIDC provider.
+	// Is used only with CRCZP instances using Keycloak OIDC provider.
 	TokenExpiryTime time.Time
 
 	// Username of the user to login as.
@@ -48,8 +49,7 @@ func NewClientWithToken(endpoint, clientId, token string) (*Client, error) {
 }
 
 // NewClient creates and returns a Client which uses username and password for authentication.
-// The username and password is used to login to Keycloak of the KYPO instance. If the login fails,
-// login to the legacy CSIRT-MU dummy OIDC issuer is attempted.
+// The username and password is used to login to Keycloak of the CRCZP instance.
 func NewClient(endpoint, clientId, username, password string) (*Client, error) {
 	client := Client{
 		Endpoint:   endpoint,
@@ -58,7 +58,7 @@ func NewClient(endpoint, clientId, username, password string) (*Client, error) {
 		Username:   username,
 		Password:   password,
 	}
-	err := client.authenticate()
+	err := client.authenticateKeycloak(context.Background())
 	if err != nil {
 		return nil, err
 	}

@@ -1,11 +1,11 @@
-package kypo_test
+package crczp_test
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/cyberrangecz/go-client/pkg/crczp"
 	"github.com/stretchr/testify/assert"
-	"github.com/vydrazde/kypo-go-client/pkg/kypo"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -67,17 +67,17 @@ var (
 			sandboxAllocationUnitResponse,
 		},
 	}
-	expectedSandboxAllocationUnit = kypo.SandboxAllocationUnit{
+	expectedSandboxAllocationUnit = crczp.SandboxAllocationUnit{
 		Id:     1,
 		PoolId: 1,
-		AllocationRequest: kypo.SandboxRequest{
+		AllocationRequest: crczp.SandboxRequest{
 			Id:               1,
 			AllocationUnitId: 1,
 			Created:          "2023-10-23T11:58:21.757093+02:00",
 			Stages:           []string{"FINISHED", "FINISHED", "FINISHED"},
 		},
-		CleanupRequest: kypo.SandboxRequest{},
-		CreatedBy: kypo.User{
+		CleanupRequest: crczp.SandboxRequest{},
+		CreatedBy: crczp.User{
 			Id:         1,
 			Sub:        "sub",
 			FullName:   "full_name",
@@ -92,7 +92,7 @@ var (
 func assertSandboxAllocationUnitGet(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-sandbox-service/api/v1/sandbox-allocation-units/1", request.URL.Path)
+	assert.Equal(t, "/sandbox-service/api/v1/sandbox-allocation-units/1", request.URL.Path)
 	assert.Equal(t, http.MethodGet, request.Method)
 }
 
@@ -130,10 +130,10 @@ func TestGetSandboxAllocationUnitNotFound(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox allocation unit",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	td, actual := c.GetSandboxAllocationUnit(context.Background(), 1)
@@ -152,7 +152,7 @@ func TestGetSandboxAllocationUnitServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox allocation unit",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -167,7 +167,7 @@ func TestGetSandboxAllocationUnitServerError(t *testing.T) {
 func assertSandboxAllocationUnitCreate(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-sandbox-service/api/v1/pools/1/sandbox-allocation-units", request.URL.Path)
+	assert.Equal(t, "/sandbox-service/api/v1/pools/1/sandbox-allocation-units", request.URL.Path)
 	assert.Equal(t, http.MethodPost, request.Method)
 
 	err := request.ParseForm()
@@ -187,7 +187,7 @@ func TestCreateSandboxAllocationUnitSuccessful(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := []kypo.SandboxAllocationUnit{expectedSandboxAllocationUnit}
+	expected := []crczp.SandboxAllocationUnit{expectedSandboxAllocationUnit}
 
 	actual, err := c.CreateSandboxAllocationUnits(context.Background(), 1, 1)
 
@@ -212,10 +212,10 @@ func TestCreateSandboxAllocationUnitNotFound(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox allocation units",
 		Identifier:   "sandbox pool 1",
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	actual, err := c.CreateSandboxAllocationUnits(context.Background(), 1, 1)
@@ -234,7 +234,7 @@ func TestCreateSandboxAllocationUnitServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox allocation units",
 		Identifier:   "sandbox pool 1",
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -249,7 +249,7 @@ func TestCreateSandboxAllocationUnitServerError(t *testing.T) {
 func assertSandboxRequest(t *testing.T, request *http.Request, requestType string) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, fmt.Sprintf("/kypo-sandbox-service/api/v1/sandbox-allocation-units/1/%s-request", requestType), request.URL.Path)
+	assert.Equal(t, fmt.Sprintf("/sandbox-service/api/v1/sandbox-allocation-units/1/%s-request", requestType), request.URL.Path)
 	assert.Equal(t, http.MethodGet, request.Method)
 }
 
@@ -340,7 +340,7 @@ func TestCreateSandboxAllocationUnitAwaitSuccessfulWithDelay(t *testing.T) {
 func assertSandboxAllocationUnitCleanup(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-sandbox-service/api/v1/sandbox-allocation-units/1/cleanup-request", request.URL.Path)
+	assert.Equal(t, "/sandbox-service/api/v1/sandbox-allocation-units/1/cleanup-request", request.URL.Path)
 	assert.Equal(t, http.MethodPost, request.Method)
 }
 
@@ -375,10 +375,10 @@ func TestCleanupSandboxAllocationUnitNotFound(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox cleanup request",
 		Identifier:   "sandbox allocation unit 1",
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	err := c.CreateSandboxCleanupRequest(context.Background(), 1)
@@ -395,7 +395,7 @@ func TestCleanupSandboxAllocationUnitServerError(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox cleanup request",
 		Identifier:   "sandbox allocation unit 1",
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -501,7 +501,7 @@ func TestCleanupSandboxAllocationUnitAwaitFailed(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox cleanup request",
 		Identifier:   "sandbox allocation unit 1",
 		Err:          fmt.Errorf("sandbox cleanup request finished with error"),
@@ -517,7 +517,7 @@ func TestCancelSandboxAllocationRequestSuccessful(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 		assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-		assert.Equal(t, "/kypo-sandbox-service/api/v1/allocation-requests/1/cancel", request.URL.Path)
+		assert.Equal(t, "/sandbox-service/api/v1/allocation-requests/1/cancel", request.URL.Path)
 		assert.Equal(t, http.MethodPatch, request.Method)
 	}))
 	defer ts.Close()
@@ -533,7 +533,7 @@ func TestGetSandboxAllocationRequestOutputSuccessful(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 		assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-		assert.Equal(t, "/kypo-sandbox-service/api/v1/allocation-requests/1/stages/user-ansible/outputs", request.URL.Path)
+		assert.Equal(t, "/sandbox-service/api/v1/allocation-requests/1/stages/user-ansible/outputs", request.URL.Path)
 		assert.Equal(t, http.MethodGet, request.Method)
 
 		err := request.ParseForm()
@@ -576,7 +576,7 @@ func TestGetSandboxAllocationRequestOutputSuccessful(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := kypo.SandboxRequestStageOutput{
+	expected := crczp.SandboxRequestStageOutput{
 		Page:       1,
 		PageSize:   10,
 		PageCount:  10,

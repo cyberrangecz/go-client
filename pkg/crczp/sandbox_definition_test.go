@@ -1,11 +1,11 @@
-package kypo_test
+package crczp_test
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/cyberrangecz/go-client/pkg/crczp"
 	"github.com/stretchr/testify/assert"
-	"github.com/vydrazde/kypo-go-client/pkg/kypo"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -46,7 +46,7 @@ var sandboxDefinitionResponse = SandboxDefinition{
 func assertSandboxDefinitionGet(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-sandbox-service/api/v1/definitions/1", request.URL.Path)
+	assert.Equal(t, "/sandbox-service/api/v1/definitions/1", request.URL.Path)
 	assert.Equal(t, http.MethodGet, request.Method)
 }
 
@@ -61,12 +61,12 @@ func TestGetSandboxDefinitionSuccessful(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := kypo.SandboxDefinition{
+	expected := crczp.SandboxDefinition{
 		Id:   1,
 		Name: "name",
 		Url:  "url",
 		Rev:  "rev",
-		CreatedBy: kypo.User{
+		CreatedBy: crczp.User{
 			Id:         1,
 			Sub:        "sub",
 			FullName:   "full_name",
@@ -99,10 +99,10 @@ func TestGetSandboxDefinitionNotFound(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox definition",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	td, actual := c.GetSandboxDefinition(context.Background(), 1)
@@ -121,7 +121,7 @@ func TestGetSandboxDefinitionServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox definition",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -136,7 +136,7 @@ func TestGetSandboxDefinitionServerError(t *testing.T) {
 func assertSandboxDefinitionCreate(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-sandbox-service/api/v1/definitions", request.URL.Path)
+	assert.Equal(t, "/sandbox-service/api/v1/definitions", request.URL.Path)
 	assert.Equal(t, http.MethodPost, request.Method)
 }
 
@@ -152,12 +152,12 @@ func TestCreateSandboxDefinitionSuccessful(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := kypo.SandboxDefinition{
+	expected := crczp.SandboxDefinition{
 		Id:   1,
 		Name: "name",
 		Url:  "url",
 		Rev:  "rev",
-		CreatedBy: kypo.User{
+		CreatedBy: crczp.User{
 			Id:         1,
 			Sub:        "sub",
 			FullName:   "full_name",
@@ -183,7 +183,7 @@ func TestCreateSandboxDefinitionServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox definition",
 		Identifier:   "",
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -198,7 +198,7 @@ func TestCreateSandboxDefinitionServerError(t *testing.T) {
 func assertSandboxDefinitionDelete(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-sandbox-service/api/v1/definitions/1", request.URL.Path)
+	assert.Equal(t, "/sandbox-service/api/v1/definitions/1", request.URL.Path)
 	assert.Equal(t, http.MethodDelete, request.Method)
 }
 
@@ -233,10 +233,10 @@ func TestDeleteSandboxDefinitionNotFound(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox definition",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	actual := c.DeleteSandboxDefinition(context.Background(), 1)
@@ -253,7 +253,7 @@ func TestDeleteSandboxDefinitionServerError(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox definition",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),

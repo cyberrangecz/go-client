@@ -1,8 +1,8 @@
-# kypo-go-client
-A [KYPO CRP](https://docs.crp.kypo.muni.cz/) client library written in Go.
+# crczp-go-client
+A [CRCZP]() client library written in Go.
 
 ## Supported API calls:
-- Login to CSIRT-MU Dummy OIDC and Keycloak
+- Login to Keycloak
 - Sandbox Definition - Get, Create, Delete
 - Sandbox Pool - Get, Create, Delete, Cleanup
 - Sandbox Allocation Unit - Get, CreateAllocation, CreateAllocationAwait, CancelAllocation, CreateCleanup, CreateCleanupAwait, GetAllocationOutput
@@ -11,24 +11,23 @@ A [KYPO CRP](https://docs.crp.kypo.muni.cz/) client library written in Go.
 
 ## Usage
 ```go
-import "github.com/vydrazde/kypo-go-client"
+import "github.com/cyberrangecz/go-client"
 ```
 
 Create a client with username and password:
 ```go
-client, err := kypo.NewClient("https://your.kypo.ex", "KYPO-Client", "username", "password")
+client, err := czcrp.NewClient("https://your.crczp.ex", "CRCZP-Client", "username", "password")
 if err != nil {
-    log.Fatalf("Failed to create KYPO client: %v", err)
+    log.Fatalf("Failed to create CRCZP client: %v", err)
 }
 ```
 
 Use the client to create a sandbox definition:
 ```go
 sandboxDefinition, err := client.CreateSandboxDefinition(context.Background(), 
-	"git@gitlab.ics.muni.cz:kypo-library/content/kypo-library-demo-training.git", "master")
+	"https://github.com/cyberrangecz/library-demo-training.git", "master")
 
 if err != nil {
     log.Fatalf("Failed to create sandbox definition: %v", err)
 }
 ```
-

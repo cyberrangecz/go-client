@@ -1,4 +1,4 @@
-package kypo
+package crczp
 
 import (
 	"context"
@@ -15,7 +15,7 @@ type TrainingDefinitionAdaptive struct {
 
 // GetTrainingDefinitionAdaptive reads the adaptive definition given by definitionID.
 func (c *Client) GetTrainingDefinitionAdaptive(ctx context.Context, definitionID int64) (*TrainingDefinitionAdaptive, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/kypo-adaptive-training/api/v1/exports/training-definitions/%d", c.Endpoint, definitionID), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/adaptive-training/api/v1/exports/training-definitions/%d", c.Endpoint, definitionID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -36,10 +36,10 @@ func (c *Client) GetTrainingDefinitionAdaptive(ctx context.Context, definitionID
 
 // CreateTrainingDefinitionAdaptive imports a JSON string content as a adaptive training definition.
 // The JSON string must be a previously exported adaptive training definition.
-// Since KYPO returns an answer with a definition in a different format than the exported definition,
+// Since CRCZP returns an answer with a definition in a different format than the exported definition,
 // only the Id is read and the input content is set as the returned TrainingDefinition.Content.
 func (c *Client) CreateTrainingDefinitionAdaptive(ctx context.Context, content string) (*TrainingDefinitionAdaptive, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/kypo-adaptive-training/api/v1/imports/training-definitions", c.Endpoint), strings.NewReader(content))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/adaptive-training/api/v1/imports/training-definitions", c.Endpoint), strings.NewReader(content))
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (c *Client) CreateTrainingDefinitionAdaptive(ctx context.Context, content s
 
 // DeleteTrainingDefinitionAdaptive deletes the adaptive definition given by definitionID.
 func (c *Client) DeleteTrainingDefinitionAdaptive(ctx context.Context, definitionID int64) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, fmt.Sprintf("%s/kypo-adaptive-training/api/v1/training-definitions/%d", c.Endpoint, definitionID), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, fmt.Sprintf("%s/adaptive-training/api/v1/training-definitions/%d", c.Endpoint, definitionID), nil)
 	if err != nil {
 		return err
 	}

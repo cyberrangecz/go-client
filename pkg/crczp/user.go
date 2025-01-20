@@ -1,4 +1,4 @@
-package kypo
+package crczp
 
 type User struct {
 	Id         int64  `json:"id" tfsdk:"id"`
