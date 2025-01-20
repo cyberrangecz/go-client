@@ -1,10 +1,10 @@
-module github.com/vydrazde/kypo-go-client
+module github.com/cyberrangecz/go-client
 
-go 1.18
+go 1.23
 
 require (
-	github.com/stretchr/testify v1.8.4
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
+	github.com/stretchr/testify v1.10.0
+	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
 )
 
 require (

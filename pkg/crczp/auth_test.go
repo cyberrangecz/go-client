@@ -1,11 +1,11 @@
-package kypo_test
+package crczp_test
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/cyberrangecz/go-client/pkg/crczp"
 	"github.com/stretchr/testify/assert"
-	"github.com/vydrazde/kypo-go-client/pkg/kypo"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,7 +14,7 @@ import (
 
 func assertRequestToKeycloak(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/x-www-form-urlencoded", request.Header.Get("Content-Type"))
-	assert.Equal(t, "/keycloak/realms/KYPO/protocol/openid-connect/token", request.URL.Path)
+	assert.Equal(t, "/keycloak/realms/CRCZP/protocol/openid-connect/token", request.URL.Path)
 	assert.Equal(t, http.MethodPost, request.Method)
 
 	err := request.ParseForm()
@@ -58,7 +58,7 @@ func TestLoginKeycloakSuccessful(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	c := kypo.Client{
+	c := crczp.Client{
 		Endpoint:   ts.URL,
 		ClientID:   "client_id",
 		HTTPClient: http.DefaultClient,
@@ -67,7 +67,7 @@ func TestLoginKeycloakSuccessful(t *testing.T) {
 		Password:   "password",
 	}
 
-	err := kypo.Authenticate(&c)
+	err := crczp.Authenticate(&c)
 
 	assert.NoError(t, err)
 	assert.Equal(t, ts.URL, c.Endpoint)
@@ -97,7 +97,7 @@ func TestLoginKeycloakUnsuccessful(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	c := kypo.Client{
+	c := crczp.Client{
 		Endpoint:   ts.URL,
 		ClientID:   "client_id",
 		HTTPClient: http.DefaultClient,
@@ -108,7 +108,7 @@ func TestLoginKeycloakUnsuccessful(t *testing.T) {
 	expected := fmt.Errorf("authentication to Keycloak failed, status: 401, body: " +
 		"{\"error\":\"invalid_grant\",\"error_description\":\"Invalid user credentials\"}")
 
-	err := kypo.Authenticate(&c)
+	err := crczp.Authenticate(&c)
 
 	assert.Equal(t, expected, err)
 	assert.Equal(t, ts.URL, c.Endpoint)
@@ -128,7 +128,7 @@ func TestRefreshToken(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	c := kypo.Client{
+	c := crczp.Client{
 		Endpoint:   ts.URL,
 		ClientID:   "client_id",
 		HTTPClient: http.DefaultClient,
@@ -137,18 +137,18 @@ func TestRefreshToken(t *testing.T) {
 		Password:   "password",
 	}
 
-	err := kypo.RefreshToken(&c, context.Background())
+	err := crczp.RefreshToken(&c, context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, 0, requestCounter)
 
 	c.TokenExpiryTime = time.Now().Add(time.Hour)
 
-	err = kypo.RefreshToken(&c, context.Background())
+	err = crczp.RefreshToken(&c, context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, 0, requestCounter)
 
 	c.TokenExpiryTime = time.Now()
-	err = kypo.RefreshToken(&c, context.Background())
+	err = crczp.RefreshToken(&c, context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, 1, requestCounter)
 	assert.Equal(t, "token", c.Token)

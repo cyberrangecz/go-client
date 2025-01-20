@@ -1,11 +1,11 @@
-package kypo_test
+package crczp_test
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/cyberrangecz/go-client/pkg/crczp"
 	"github.com/stretchr/testify/assert"
-	"github.com/vydrazde/kypo-go-client/pkg/kypo"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -72,14 +72,14 @@ var (
 			},
 		},
 	}
-	expectedPoolResponse = kypo.SandboxPool{
+	expectedPoolResponse = crczp.SandboxPool{
 		Id:      1,
 		Size:    0,
 		MaxSize: 1,
 		LockId:  0,
 		Rev:     "rev",
 		RevSha:  "rev_sha",
-		CreatedBy: kypo.User{
+		CreatedBy: crczp.User{
 			Id:         1,
 			Sub:        "sub",
 			FullName:   "full_name",
@@ -87,7 +87,7 @@ var (
 			FamilyName: "family_name",
 			Mail:       "mail",
 		},
-		HardwareUsage: kypo.HardwareUsage{
+		HardwareUsage: crczp.HardwareUsage{
 			Vcpu:      "0.000",
 			Ram:       "0.000",
 			Instances: "0.000",
@@ -95,12 +95,12 @@ var (
 			Subnet:    "0.000",
 			Port:      "0.000",
 		},
-		Definition: kypo.SandboxDefinition{
+		Definition: crczp.SandboxDefinition{
 			Id:   1,
 			Name: "name",
 			Url:  "url",
 			Rev:  "rev",
-			CreatedBy: kypo.User{
+			CreatedBy: crczp.User{
 				Id:         1,
 				Sub:        "sub",
 				FullName:   "full_name",
@@ -153,10 +153,10 @@ func TestGetSandboxPoolNotFound(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox pool",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	td, actual := c.GetSandboxPool(context.Background(), 1)
@@ -175,7 +175,7 @@ func TestGetSandboxPoolServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox pool",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -242,10 +242,10 @@ func TestCreateSandboxPoolNotFound(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox pool",
 		Identifier:   "sandbox definition 1",
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	actual, err := c.CreateSandboxPool(context.Background(), 1, 1)
@@ -264,7 +264,7 @@ func TestCreateSandboxPoolServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox pool",
 		Identifier:   "sandbox definition 1",
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -314,10 +314,10 @@ func TestDeleteSandboxPoolNotFound(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox pool",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	actual := c.DeleteSandboxPool(context.Background(), 1)
@@ -334,7 +334,7 @@ func TestDeleteSandboxPoolServerError(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox pool",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),
@@ -396,10 +396,10 @@ func TestCleanupSandboxPoolNotFound(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox pool",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
 	actual := c.CleanupSandboxPool(context.Background(), 1, false)
@@ -416,7 +416,7 @@ func TestCleanupSandboxPoolServerError(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
+	expected := &crczp.Error{
 		ResourceName: "sandbox pool",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),

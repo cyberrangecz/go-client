@@ -1,38 +1,29 @@
-package kypo_test
+package crczp_test
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/cyberrangecz/go-client/pkg/crczp"
 	"github.com/stretchr/testify/assert"
-	"github.com/vydrazde/kypo-go-client/pkg/kypo"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-var trainingDefinitionJsonString = `{"title":"title","description":"description","prerequisites":[],"outcomes":[],"state":"UNRELEASED","show_stepper_bar":true,"levels":[],"estimated_duration":0,"variant_sandboxes":false}`
+var trainingDefinitionAdaptiveJsonString = `{"title":"title","description":"description","prerequisites":[],"outcomes":[],"state":"UNRELEASED","show_stepper_bar":true,"phases":[],"estimated_duration":0}`
 
-func minimalClient(ts *httptest.Server) kypo.Client {
-	c := kypo.Client{
-		Endpoint:   ts.URL,
-		HTTPClient: http.DefaultClient,
-		Token:      "token",
-	}
-	return c
-}
-
-func assertTrainingDefinitionGet(t *testing.T, request *http.Request) {
+func assertTrainingDefinitionAdaptiveGet(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
 	assert.Equal(t, "application/octet-stream", request.Header.Get("accept"))
-	assert.Equal(t, "/kypo-rest-training/api/v1/exports/training-definitions/1", request.URL.Path)
+	assert.Equal(t, "/kypo-adaptive-training/api/v1/exports/training-definitions/1", request.URL.Path)
 	assert.Equal(t, http.MethodGet, request.Method)
 }
 
-func TestGetTrainingDefinitionSuccessful(t *testing.T) {
+func TestGetTrainingDefinitionAdaptiveSuccessful(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		assertTrainingDefinitionGet(t, request)
+		assertTrainingDefinitionAdaptiveGet(t, request)
 
 		r := struct {
 			Title             string   `json:"title"`
@@ -41,9 +32,8 @@ func TestGetTrainingDefinitionSuccessful(t *testing.T) {
 			Outcomes          []string `json:"outcomes"`
 			State             string   `json:"state"`
 			ShowStepperBar    bool     `json:"show_stepper_bar"`
-			Levels            []string `json:"levels"`
+			Phases            []string `json:"phases"`
 			EstimatedDuration int      `json:"estimated_duration"`
-			VariantSandboxes  bool     `json:"variant_sandboxes"`
 		}{
 			Title:             "title",
 			Description:       "description",
@@ -51,9 +41,8 @@ func TestGetTrainingDefinitionSuccessful(t *testing.T) {
 			Outcomes:          []string{},
 			State:             "UNRELEASED",
 			ShowStepperBar:    true,
-			Levels:            []string{},
+			Phases:            []string{},
 			EstimatedDuration: 0,
-			VariantSandboxes:  false,
 		}
 		response, _ := json.Marshal(r)
 		_, _ = fmt.Fprint(writer, string(response))
@@ -62,20 +51,20 @@ func TestGetTrainingDefinitionSuccessful(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := kypo.TrainingDefinition{
+	expected := crczp.TrainingDefinitionAdaptive{
 		Id:      1,
-		Content: trainingDefinitionJsonString,
+		Content: trainingDefinitionAdaptiveJsonString,
 	}
 
-	actual, err := c.GetTrainingDefinition(context.Background(), 1)
+	actual, err := c.GetTrainingDefinitionAdaptive(context.Background(), 1)
 
 	assert.NoError(t, err)
 	assert.Equal(t, &expected, actual)
 }
 
-func TestGetTrainingDefinitionNotFound(t *testing.T) {
+func TestGetTrainingDefinitionAdaptiveNotFound(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		assertTrainingDefinitionGet(t, request)
+		assertTrainingDefinitionAdaptiveGet(t, request)
 
 		writer.WriteHeader(http.StatusNotFound)
 	}))
@@ -83,21 +72,21 @@ func TestGetTrainingDefinitionNotFound(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
-		ResourceName: "training definition",
+	expected := &crczp.Error{
+		ResourceName: "training definition adaptive",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
-	td, actual := c.GetTrainingDefinition(context.Background(), 1)
+	td, actual := c.GetTrainingDefinitionAdaptive(context.Background(), 1)
 
 	assert.Nil(t, td)
 	assert.Equal(t, expected, actual)
 }
 
-func TestGetTrainingDefinitionServerError(t *testing.T) {
+func TestGetTrainingDefinitionAdaptiveServerError(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		assertTrainingDefinitionGet(t, request)
+		assertTrainingDefinitionAdaptiveGet(t, request)
 
 		writer.WriteHeader(http.StatusInternalServerError)
 	}))
@@ -105,28 +94,28 @@ func TestGetTrainingDefinitionServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
-		ResourceName: "training definition",
+	expected := &crczp.Error{
+		ResourceName: "training definition adaptive",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),
 	}
 
-	td, actual := c.GetTrainingDefinition(context.Background(), 1)
+	td, actual := c.GetTrainingDefinitionAdaptive(context.Background(), 1)
 
 	assert.Nil(t, td)
 	assert.Equal(t, expected, actual)
 }
 
-func assertTrainingDefinitionCreate(t *testing.T, request *http.Request) {
+func assertTrainingDefinitionAdaptiveCreate(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-rest-training/api/v1/imports/training-definitions", request.URL.Path)
+	assert.Equal(t, "/kypo-adaptive-training/api/v1/imports/training-definitions", request.URL.Path)
 	assert.Equal(t, http.MethodPost, request.Method)
 }
 
-func TestCreateTrainingDefinitionSuccessful(t *testing.T) {
+func TestCreateTrainingDefinitionAdaptiveSuccessful(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		assertTrainingDefinitionCreate(t, request)
+		assertTrainingDefinitionAdaptiveCreate(t, request)
 
 		r := struct {
 			Id                 int      `json:"id"`
@@ -164,20 +153,20 @@ func TestCreateTrainingDefinitionSuccessful(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := kypo.TrainingDefinition{
+	expected := crczp.TrainingDefinitionAdaptive{
 		Id:      1,
 		Content: trainingDefinitionJsonString,
 	}
 
-	actual, err := c.CreateTrainingDefinition(context.Background(), trainingDefinitionJsonString)
+	actual, err := c.CreateTrainingDefinitionAdaptive(context.Background(), trainingDefinitionJsonString)
 
 	assert.NoError(t, err)
 	assert.Equal(t, &expected, actual)
 }
 
-func TestCreateTrainingDefinitionServerError(t *testing.T) {
+func TestCreateTrainingDefinitionAdaptiveServerError(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		assertTrainingDefinitionCreate(t, request)
+		assertTrainingDefinitionAdaptiveCreate(t, request)
 
 		writer.WriteHeader(http.StatusInternalServerError)
 	}))
@@ -185,28 +174,28 @@ func TestCreateTrainingDefinitionServerError(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	expected := &kypo.Error{
-		ResourceName: "training definition",
+	expected := &crczp.Error{
+		ResourceName: "training definition adaptive",
 		Identifier:   "",
 		Err:          fmt.Errorf("status: 500, body: "),
 	}
 
-	td, actual := c.CreateTrainingDefinition(context.Background(), trainingDefinitionJsonString)
+	td, actual := c.CreateTrainingDefinitionAdaptive(context.Background(), trainingDefinitionJsonString)
 
 	assert.Nil(t, td)
 	assert.Equal(t, expected, actual)
 }
 
-func assertTrainingDefinitionDelete(t *testing.T, request *http.Request) {
+func assertTrainingDefinitionAdaptiveDelete(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/kypo-rest-training/api/v1/training-definitions/1", request.URL.Path)
+	assert.Equal(t, "/kypo-adaptive-training/api/v1/training-definitions/1", request.URL.Path)
 	assert.Equal(t, http.MethodDelete, request.Method)
 }
 
-func TestDeleteTrainingDefinitionSuccessful(t *testing.T) {
+func TestDeleteTrainingDefinitionAdaptiveSuccessful(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		assertTrainingDefinitionDelete(t, request)
+		assertTrainingDefinitionAdaptiveDelete(t, request)
 
 		writer.WriteHeader(http.StatusOK)
 	}))
@@ -214,14 +203,14 @@ func TestDeleteTrainingDefinitionSuccessful(t *testing.T) {
 
 	c := minimalClient(ts)
 
-	err := c.DeleteTrainingDefinition(context.Background(), 1)
+	err := c.DeleteTrainingDefinitionAdaptive(context.Background(), 1)
 
 	assert.NoError(t, err)
 }
 
-func TestDeleteTrainingDefinitionNotFound(t *testing.T) {
+func TestDeleteTrainingDefinitionAdaptiveNotFound(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		assertTrainingDefinitionDelete(t, request)
+		assertTrainingDefinitionAdaptiveDelete(t, request)
 
 		writer.WriteHeader(http.StatusNotFound)
 		type EntityErrorDetail struct {
@@ -243,7 +232,7 @@ func TestDeleteTrainingDefinitionNotFound(t *testing.T) {
 			Status:    "NOT_FOUND",
 			Message:   "Entity TrainingDefinition (id: 1) not found.",
 			Errors:    []*string{nil},
-			Path:      "/kypo-rest-training/api/v1/training-definitions/1",
+			Path:      "/kypo-adaptive-training/api/v1/training-definitions/1",
 			EntityErrorDetail: EntityErrorDetail{
 				Entity:          "TrainingDefinition",
 				Identifier:      "id",
@@ -257,32 +246,32 @@ func TestDeleteTrainingDefinitionNotFound(t *testing.T) {
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
-		ResourceName: "training definition",
+	expected := &crczp.Error{
+		ResourceName: "training definition adaptive",
 		Identifier:   int64(1),
-		Err:          kypo.ErrNotFound,
+		Err:          crczp.ErrNotFound,
 	}
 
-	actual := c.DeleteTrainingDefinition(context.Background(), 1)
+	actual := c.DeleteTrainingDefinitionAdaptive(context.Background(), 1)
 
 	assert.Equal(t, expected, actual)
 }
 
-func TestDeleteTrainingDefinitionServerError(t *testing.T) {
+func TestDeleteTrainingDefinitionAdaptiveServerError(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		assertTrainingDefinitionDelete(t, request)
+		assertTrainingDefinitionAdaptiveDelete(t, request)
 
 		writer.WriteHeader(http.StatusInternalServerError)
 	}))
 	defer ts.Close()
 
 	c := minimalClient(ts)
-	expected := &kypo.Error{
-		ResourceName: "training definition",
+	expected := &crczp.Error{
+		ResourceName: "training definition adaptive",
 		Identifier:   int64(1),
 		Err:          fmt.Errorf("status: 500, body: "),
 	}
-	actual := c.DeleteTrainingDefinition(context.Background(), 1)
+	actual := c.DeleteTrainingDefinitionAdaptive(context.Background(), 1)
 
 	assert.Equal(t, expected, actual)
 }

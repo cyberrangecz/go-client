@@ -1,4 +1,4 @@
-package kypo
+package crczp
 
 import (
 	"context"
@@ -36,7 +36,7 @@ func (c *Client) GetTrainingDefinitionAdaptive(ctx context.Context, definitionID
 
 // CreateTrainingDefinitionAdaptive imports a JSON string content as a adaptive training definition.
 // The JSON string must be a previously exported adaptive training definition.
-// Since KYPO returns an answer with a definition in a different format than the exported definition,
+// Since CRCZP returns an answer with a definition in a different format than the exported definition,
 // only the Id is read and the input content is set as the returned TrainingDefinition.Content.
 func (c *Client) CreateTrainingDefinitionAdaptive(ctx context.Context, content string) (*TrainingDefinitionAdaptive, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/kypo-adaptive-training/api/v1/imports/training-definitions", c.Endpoint), strings.NewReader(content))
