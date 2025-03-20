@@ -26,7 +26,7 @@ func assertTrainingDefinitionGet(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
 	assert.Equal(t, "application/octet-stream", request.Header.Get("accept"))
-	assert.Equal(t, "/rest-training/api/v1/exports/training-definitions/1", request.URL.Path)
+	assert.Equal(t, "/training/api/v1/exports/training-definitions/1", request.URL.Path)
 	assert.Equal(t, http.MethodGet, request.Method)
 }
 
@@ -120,7 +120,7 @@ func TestGetTrainingDefinitionServerError(t *testing.T) {
 func assertTrainingDefinitionCreate(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/rest-training/api/v1/imports/training-definitions", request.URL.Path)
+	assert.Equal(t, "/training/api/v1/imports/training-definitions", request.URL.Path)
 	assert.Equal(t, http.MethodPost, request.Method)
 }
 
@@ -200,7 +200,7 @@ func TestCreateTrainingDefinitionServerError(t *testing.T) {
 func assertTrainingDefinitionDelete(t *testing.T, request *http.Request) {
 	assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 	assert.Equal(t, "Bearer token", request.Header.Get("Authorization"))
-	assert.Equal(t, "/rest-training/api/v1/training-definitions/1", request.URL.Path)
+	assert.Equal(t, "/training/api/v1/training-definitions/1", request.URL.Path)
 	assert.Equal(t, http.MethodDelete, request.Method)
 }
 
@@ -243,7 +243,7 @@ func TestDeleteTrainingDefinitionNotFound(t *testing.T) {
 			Status:    "NOT_FOUND",
 			Message:   "Entity TrainingDefinition (id: 1) not found.",
 			Errors:    []*string{nil},
-			Path:      "/rest-training/api/v1/training-definitions/1",
+			Path:      "/training/api/v1/training-definitions/1",
 			EntityErrorDetail: EntityErrorDetail{
 				Entity:          "TrainingDefinition",
 				Identifier:      "id",
