@@ -39,16 +39,8 @@ type Pagination[T any] struct {
 }
 
 type SandboxRequestStageOutput struct {
-	Page       int64  `json:"page" tfsdk:"page"`
-	PageSize   int64  `json:"page_size" tfsdk:"page_size"`
-	PageCount  int64  `json:"page_count" tfsdk:"page_count"`
-	Count      int64  `json:"count" tfsdk:"line_count"`
-	TotalCount int64  `json:"total_count" tfsdk:"total_count"`
-	Result     string `json:"result" tfsdk:"result"`
-}
-
-type outputLine struct {
-	Content string `json:"content"`
+	Result string `json:"content" tfsdk:"result"`
+	Rows   int64  `json:"rows" tfsdk:"rows"`
 }
 
 // GetSandboxAllocationUnit reads a sandbox allocation unit based on its id.
@@ -230,10 +222,9 @@ func (c *Client) CancelSandboxAllocationRequest(ctx context.Context, allocationR
 
 // GetSandboxRequestAnsibleOutputs reads the output of given allocation request stage.
 // The `outputType` should be one of `user-ansible`, `networking-ansible` or `terraform`.
-func (c *Client) GetSandboxRequestAnsibleOutputs(ctx context.Context, sandboxRequestId, page, pageSize int64, outputType string) (*SandboxRequestStageOutput, error) {
+func (c *Client) GetSandboxRequestAnsibleOutputs(ctx context.Context, sandboxRequestId, fromRow int64, outputType string) (*SandboxRequestStageOutput, error) {
 	query := url.Values{}
-	query.Add("page", strconv.FormatInt(page, 10))
-	query.Add("page_size", strconv.FormatInt(pageSize, 10))
+	query.Add("from_row", strconv.FormatInt(fromRow, 10))
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(
 		"%s/sandbox-service/api/v1/allocation-requests/%d/stages/%s/outputs?%s", c.Endpoint, sandboxRequestId, outputType, query.Encode()), nil)
@@ -246,24 +237,11 @@ func (c *Client) GetSandboxRequestAnsibleOutputs(ctx context.Context, sandboxReq
 		return nil, err
 	}
 
-	outputRaw := Pagination[[]outputLine]{}
+	output := SandboxRequestStageOutput{}
 
-	err = json.Unmarshal(body, &outputRaw)
+	err = json.Unmarshal(body, &output)
 	if err != nil {
 		return nil, err
-	}
-
-	output := SandboxRequestStageOutput{
-		Page:       outputRaw.Page,
-		PageSize:   outputRaw.PageSize,
-		PageCount:  outputRaw.PageCount,
-		Count:      outputRaw.Count,
-		TotalCount: outputRaw.TotalCount,
-		Result:     "",
-	}
-
-	for _, line := range outputRaw.Results {
-		output.Result += line.Content + "\n"
 	}
 
 	return &output, nil

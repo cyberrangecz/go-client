@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cyberrangecz/go-client/pkg/crczp"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/cyberrangecz/go-client/pkg/crczp"
+	"github.com/stretchr/testify/assert"
 )
 
 type SandboxAllocationRequest struct {
@@ -538,38 +539,16 @@ func TestGetSandboxAllocationRequestOutputSuccessful(t *testing.T) {
 
 		err := request.ParseForm()
 		assert.NoError(t, err)
-		assert.Equal(t, "1", request.Form.Get("page"))
-		assert.Equal(t, "10", request.Form.Get("page_size"))
+		assert.Equal(t, "0", request.Form.Get("from_row"))
 
-		type Content struct {
-			Content string `json:"content"`
-		}
 		r := struct {
-			Page       int       `json:"page"`
-			PageSize   int       `json:"page_size"`
-			PageCount  int       `json:"page_count"`
-			Count      int       `json:"count"`
-			TotalCount int       `json:"total_count"`
-			Results    []Content `json:"results"`
+			Rows    int    `json:"rows"`
+			Content string `json:"content"`
 		}{
-			Page:       1,
-			PageSize:   10,
-			PageCount:  10,
-			Count:      10,
-			TotalCount: 100,
-			Results: []Content{
-				{Content: "1"},
-				{Content: "2"},
-				{Content: "3"},
-				{Content: "4"},
-				{Content: "5"},
-				{Content: "6"},
-				{Content: "7"},
-				{Content: "8"},
-				{Content: "9"},
-				{Content: "10"},
-			},
+			Content: "content",
+			Rows:    67,
 		}
+
 		response, _ := json.Marshal(r)
 		_, _ = fmt.Fprint(writer, string(response))
 	}))
@@ -577,15 +556,11 @@ func TestGetSandboxAllocationRequestOutputSuccessful(t *testing.T) {
 
 	c := minimalClient(ts)
 	expected := crczp.SandboxRequestStageOutput{
-		Page:       1,
-		PageSize:   10,
-		PageCount:  10,
-		Count:      10,
-		TotalCount: 100,
-		Result:     "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n",
+		Result: "content",
+		Rows:   67,
 	}
 
-	actual, err := c.GetSandboxRequestAnsibleOutputs(context.Background(), 1, 1, 10, "user-ansible")
+	actual, err := c.GetSandboxRequestAnsibleOutputs(context.Background(), 1, 0, "user-ansible")
 
 	assert.NoError(t, err)
 	assert.Equal(t, &expected, actual)
