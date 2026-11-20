@@ -19,7 +19,8 @@ func (c *Client) GetTrainingDefinition(ctx context.Context, definitionID int64) 
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("accept", "application/octet-stream")
+	// backend-training v3.1+ exports JSON or YAML only; older releases octet-stream only
+	req.Header.Set("accept", "application/json, application/octet-stream")
 
 	body, _, err := c.doRequestWithRetry(req, http.StatusOK, "training definition", definitionID)
 	if err != nil {
